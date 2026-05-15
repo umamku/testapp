@@ -10,7 +10,10 @@ export default function LandingPage() {
   const [programs, setPrograms] = useState([]);
 
   useEffect(() => {
-    api.get('/programs').then((res) => setPrograms(res.data)).catch(() => {});
+    api
+      .get('/programs')
+      .then((res) => setPrograms(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setPrograms([]));
   }, []);
 
   return (

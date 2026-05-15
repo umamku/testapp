@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  phone         String
+  password      String
+  role          String         @default("SANTRI")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  registrations Registration[]
+}
+
+model Program {
+  id            String         @id @default(cuid())
+  name          String         @unique
+  description   String
+  schedule      String
+  fee           Int
+  capacity      Int
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  registrations Registration[]
+  classes       Class[]
+}
+
+model Registration {
+  id              String           @id @default(cuid())
+  userId          String
+  user            User             @relation(fields: [userId], references: [id])
+  programId       String
+  program         Program          @relation(fields: [programId], references: [id])
+  status          String           @default("PENDING")
+  santriName      String
+  santriDOB       String
+  santriGender    String
+  santriAddress   String
+  education       String
+  parentName      String
+  parentPhone     String
+  readingLevel    String
+  documentUrl     String?
+  paymentProofUrl String?
+  adminNotes      String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  placementTest   PlacementTest?
+  classAssignment ClassAssignment?
+}
+
+model PlacementTest {
+  id             String       @id @default(cuid())
+  registrationId String       @unique
+  registration   Registration @relation(fields: [registrationId], references: [id])
+  scheduledDate  String
+  method         String
+  result         String?
+  score          Int?
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Class {
+  id          String            @id @default(cuid())
+  name        String
+  programId   String
+  program     Program           @relation(fields: [programId], references: [id])
+  teacherName String
+  schedule    String
+  capacity    Int
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  assignments ClassAssignment[]
+}
+
+model ClassAssignment {
+  id             String       @id @default(cuid())
+  classId        String
+  class          Class        @relation(fields: [classId], references: [id])
+  registrationId String       @unique
+  registration   Registration @relation(fields: [registrationId], references: [id])
+  createdAt      DateTime     @default(now())
+}
